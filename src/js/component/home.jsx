@@ -1,13 +1,16 @@
+// Si no funciona la app crear el usuario "Felipe" https://playground.4geeks.com/todo/docs
+
 import React, { useEffect, useState } from "react";
-import Swal from 'sweetalert2'
+import TaskList from "./TaskList";
 
 const API_BASE_URL = "https://playground.4geeks.com/todo/";
 
 
 const Home = () => {
 
-	const [inputValue, setInputValue] = useState("")
 	const [listTask, setListTask] = useState([])
+	const [inputValue, setInputValue] = useState("")
+
 
 
 	// Funcion para mostrar la lista de todos
@@ -62,30 +65,34 @@ const Home = () => {
 
 	// Function para borrar una tarea a traves del index
 	const deleteTask = async (taskId) => {
-
 		try {
 			const response = await fetch(`${API_BASE_URL}todos/${taskId}`, {
 				method: "DELETE",
 			});
-	
+
 			if (response.ok) {
+				await getUserTodosList();
 				// Actualiza la lista de tareas en el estado
 				setListTask(prevTasks => prevTasks.filter(task => task.id !== taskId));
-				alert("Tarea eliminada exitosamente!")
 			}
-					
+
 		} catch (error) {
 			console.error("Error borrando task:", error);
 		}
 	};
+
 	// Function para limpiar todas las tareas
 	const deleteAllTasks = async () => {
-		tasks.forEach((task) => {
+		listTask.forEach((task) => {
 			deleteTask(task.id)
 		})
 	};
 
+	const updateTaskList = (newList) => {
+		setListTask(newList);
+	};
 
+	
 	return (
 		<>
 
@@ -103,18 +110,9 @@ const Home = () => {
 			</div>
 
 			<div className="container d-flex justify-content-center bg-light p-3 rounded my-2" style={{ width: "40rem" }}>
-				<ul className="list-group list-group-flush" style={{ width: '100%' }}>
-					{listTask.map(task => (
-						<li key={task.id} className="list-group-item bg-light d-flex justify-content-between align-items-center">
-							{task.label}
-							<div>
-								<button type="button" className="btn btn-outline-secondary mx-1" >Editar</button>
-								<button type="button" className="btn btn-outline-danger mx-1" onClick={() => deleteTask(task.id)}>Eliminar</button>
-							</div>
-						</li>
-					))}
-				</ul>
+				<TaskList listTask={listTask} deleteTask={deleteTask} updateTaskList={updateTaskList}/>
 			</div>
+
 
 		</>
 	);
